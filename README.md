@@ -3,9 +3,9 @@ Open the file DZ_BRISO (this file takes lace in the folder DZ) and input your in
 Run the code. If in the part (Выбор формы топливного заряда и определение его геометрических характеристик) average more then 0,5 and less then 0,75 that you can continue use this code, 
 else you have mistakes in the initial data or you have a star - shaped powder (this code is used for slot shaped powders).
 In the picture with stars you can see the best conditions for your propulsion system (PS) (mass of PS and length of PS).
-Next step. Open the file Параметры РДТТ. Bring there necessaraly parametrs from the file DZ_BRISO (Parametrs are pointed in Параметры РДТТ).
+Next step. Open the file Параметры РДТТ. Bring there necessaraly parametrs from the file DZ_BRISO (Parametrs are pointed in 4 пункт).
 There is you can determine the process of flame the powder and get the picture.
-The end of home work. Open the file (Масса воспламенителя и индикаторная кривая) (this file takes lace in the folder DZ/LR).
+The end of home work. Open the file (Масса воспламенителя и индикаторная кривая) (this file takes lace in the folder DZ/5 пункт).
 Bring in this file necessaraly parameters from other programms. 
 The first step. Run the minimization and determine count of grains and the width of the one grain.
 The second step. Run the function for determenation of the net and get the optimal parameters of count of grains and the width of the one grain.
