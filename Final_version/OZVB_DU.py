@@ -811,7 +811,7 @@ class get_flame():
         print(self.e_d)
         self.ro_t = INIT['ro_t']
         self.omega = INIT['omega_opt'][0]
-        self.D_ks = np.round(self.D_n - 2 * self.delta_ob - 2 * self.delta_zks, 4)
+        self.D_ks = self.D_n - 2 * self.delta_ob - 2 * self.delta_zks
         self.z_0 = self.e_d * self.D_ks / 2
         self.d = self.D_ks - 2 * self.z_0
         self.beta = np.pi / self.count
@@ -827,8 +827,7 @@ class get_flame():
         elif self.flag == 'star':
             self.alpha_1 = INIT['alpha_1']
             self.tetta = INIT['tetta']
-            print(self.tetta)
-            self.R = np.round((self.D_ks / 2 - self.z_0) / (1 + self.r_), 4)
+            self.R = (self.D_ks / 2 - self.z_0) / (1 + self.r_)
             self.r = self.D_ks / 2 - self.z_0 - self.R
             self.epsilon_f = 1 - 1 / self.beta * ((1 - self.e_d) / (1 + self.r_)) ** 2 * (
                         self.alpha_1 * self.r_ ** 2 + (np.sin(self.beta) / np.sin(
@@ -839,8 +838,7 @@ class get_flame():
             self.z_2 = self.z_0
             self.z_3 = np.sqrt(self.R ** 2 + (self.D_ks / 2) **
                                2 - self.R * self.D_ks * np.cos(self.beta)) - self.r
-        self.l_gr = np.round(
-            self.omega / (self.ro_t * self.epsilon_w * self.F_ks), 4)
+        self.l_gr = self.omega / (self.ro_t * self.epsilon_w * self.F_ks)
         if self.flag == 'slot':
             self.a = self.a_ * self.l_gr
             self.c = self.c_ * self.D_ks
@@ -884,7 +882,9 @@ class get_flame():
                 return np.pi / 4 * (self.D_ks ** 2 - (self.d + 2 * z) ** 2)
 
             def get_kappa(self, z):
-                return S_c(self, z) / (self.F_ks * self.f_cut)
+                # return S_c(self, z) / (self.F_ks * self.f_cut)
+                #
+                return (S_a(self, z) + S_b(self, z)) / (self.F_ks * (1 - self.epsilon_f))
 
             def S(self, z):
                 return S_a(self, z) + S_b(self, z) + S_c(self, z) + S_d(self, z)
@@ -975,8 +975,8 @@ class get_flame():
             print("S_sr =", s.mean())
             # print(S_g_sr)
             return {'a': self.a, 'c': self.c, 'D_ks': self.D_ks, 'epsilon_w': self.epsilon_w,
-                    'epsilon_f': self.epsilon_f, 'kappa_0': kappa_cut[0], 'l_gr': self.l_gr,
-                    'z': z, 'sa': sa, 'sb': sb, 'sc': sc, 'sd': sd, 's': s, 'z_1': self.z_1,
+                    'epsilon_f': self.epsilon_f, 'kappa_0': kappa_kan[0], 'l_gr': self.l_gr,
+                    'z_arr': z, 'sa': sa, 'sb': sb, 'sc': sc, 'sd': sd, 's': s, 'z_1': self.z_1,
                     'z_2': self.z_2, 'z_0': self.z_0, 'f_cut': self.f_cut, 'F_cut': self.F_cut}
         elif self.flag == 'star':
             z = np.linspace(0, self.z_3, 100)
@@ -994,7 +994,7 @@ class get_flame():
             print("l_gr =", self.l_gr)
             print("S_sr =", s.mean())
             return {'D_ks': self.D_ks, 'epsilon_f': self.epsilon_f, 'epsilon_w': self.epsilon_w, 'kappa_0': kappa[0],
-                    'z': z,
+                    'z_arr': z,
                     's': s, 'z_1': self.z_1, 'z_2': self.z_2, 'z_3': self.z_3, 'kappa': kappa,
                     'l_gr': self.l_gr, 's1': s1, 'kappa2': kappa2, 'z_0': self.z_0, 'R': self.R,
                     'r': self.r}
@@ -1156,18 +1156,19 @@ class get_p_graph():
         self.z_0_v = INIT['z_0_v']
         self.R_g_v = INIT['R_g_v']
         self.R_v = self.R_g_v * (1 - self.z_0_v)
-        self.T_p_1 = INIT['T_p_1']
-        self.n_t = INIT['n_t']
+        self.T_p_1 = INIT['T_r']
+        self.n_t = INIT['k']
         self.n_kr = INIT['n_kr']
-        self.u_1_t = INIT['u_1_t'] * 1e-3
-        self.nu_t = INIT['nu_t']
-        self.D_t_t = INIT['D_t_t']
+        self.u_1_t = INIT['u_1'] * 1e-3
+        self.nu_t = INIT['nu']
+        self.D_t_t = INIT['D_t']
         self.c_p_1 = INIT['c_p_1']
         self.c_t = INIT['c_t']
         self.lamda_t = INIT['lamda_t']
         self.kappa_ref = INIT['kappa_ref']
-        self.z_0_t = INIT['z_0_t']
-        self.R_t = INIT['R_t']
+        self.z_0_t = INIT['z']
+        self.R_t = INIT['R_g']
+        # print(self.T_p_1, self.n_t, self.n_kr, self.u_1_t, self.nu_t, self.D_t_t, self.c_p_1, self.z_0_t, self.R_t)
         self.R_1 = self.R_t * (1 - self.z_0_t)
         self.A_n = (self.n_kr * (2 / (self.n_kr + 1)) **
                     ((self.n_kr + 1) / (self.n_kr - 1))) ** 0.5
