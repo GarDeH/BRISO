@@ -492,7 +492,7 @@ class get_powder():
         self.tetta_2 = np.radians(INIT['tetta_2'])
         self.ro_k = INIT['ro_k']
 
-    def fi_kappa(kappa):
+    def fi_kappa(kappa, kappa_por):
         if kappa > kappa_por:
             return 1 + 0.003 * (kappa - kappa_por)
         else:
@@ -577,9 +577,12 @@ class get_powder():
         T_ref = 293.15
         kappa_por = 100
 
-        p_50 = p_nom_fit * \
-               np.exp((self.D_t * (T_0 - T_ref)) / (1 - self.nu)) * \
-               1 ** (1 / (1 - self.nu))
+        p_50 = np.array([])
+        for i in range(len(kappa_arr)):
+            p_50_i = p_nom_fit[i] * \
+                   np.exp((self.D_t * (T_0 - T_ref)) / (1 - self.nu)) * \
+                   get_powder.fi_kappa(kappa_arr[i], kappa_por) ** (1 / (1 - self.nu))
+            p_50 = np.append(p_50, p_50_i)
 
         p_p_arr = p_50 * self.sigma_vr / self.sigma_02 * k_1 * k_2 * etta
 
@@ -882,9 +885,10 @@ class get_flame():
                 return np.pi / 4 * (self.D_ks ** 2 - (self.d + 2 * z) ** 2)
 
             def get_kappa(self, z):
-                # return S_c(self, z) / (self.F_ks * self.f_cut)
+                return S_c(self, z) / (self.F_ks * self.f_cut)
                 #
-                return (S_a(self, z) + S_b(self, z)) / (self.F_ks * (1 - self.epsilon_f))
+#                 return (S_a(self, z) + S_b(self, z)) / (self.F_ks * (1 - self.epsilon_f))
+
 
             def S(self, z):
                 return S_a(self, z) + S_b(self, z) + S_c(self, z) + S_d(self, z)
@@ -975,7 +979,7 @@ class get_flame():
             print("S_sr =", s.mean())
             # print(S_g_sr)
             return {'a': self.a, 'c': self.c, 'D_ks': self.D_ks, 'epsilon_w': self.epsilon_w,
-                    'epsilon_f': self.epsilon_f, 'kappa_0': kappa_kan[0], 'l_gr': self.l_gr,
+                    'epsilon_f': self.epsilon_f, 'kappa_0': kappa_cut[0], 'l_gr': self.l_gr,
                     'z_arr': z, 'sa': sa, 'sb': sb, 'sc': sc, 'sd': sd, 's': s, 'z_1': self.z_1,
                     'z_2': self.z_2, 'z_0': self.z_0, 'f_cut': self.f_cut, 'F_cut': self.F_cut}
         elif self.flag == 'star':
@@ -1328,7 +1332,7 @@ class get_p_graph():
         return alpha * (T - (self.T_0 + etta_T ** 0.5))
 
     def Pi(self, lamda):
-        return (1 - (self.n_t - 1) / (self.n_t + 1) * lamda ** 2) ** (self.n_t / (self.n_t - 1))
+        return (1 - (self.n_kr - 1) / (self.n_kr + 1) * lamda ** 2) ** (self.n_kr / (self.n_kr - 1))
 
     def get_G(self, p, R, T):  # секундный массовый расход ПС через сопло
         if p * get_p_graph.Pi(self, 1) < self.p_h:
